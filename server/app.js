@@ -78,35 +78,53 @@ app.post('/links',
 /************************************************************/
 app.get('/signup', (req, res) => {
   res.render('signup');
-  res.status(200).send(signup);
+  res.sendStatus(200);
 });
 
 app.post('/signup', (req, res) => {
-  console.log('this is the req body for signing up', req.body);
-  console.log(models.Model.get({username: req.body.username}));
-  // if (models.Model.get({username: req.body.username})) {
-  //   console.log('it worked');
-  // }
-  // check if user exists in table (model.get)
-  // create username, password (users.js)
-
+  var username = req.body.username;
+  return models.Users.get({username})
+    .then((user) => {
+      if (user) {
+        res.redirect('/signup'); // /login if username exists?
+      } else {
+        var username = req.body.username;
+        var password = req.body.password;
+        return models.Users.create({username, password});
+      }
+    })
+    .then((result) => {
+      res.redirect('/');
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      throw err;
+    });
 });
 
 app.get('/login', (req, res, next) => {
   res.render('login');
-  res.status(200).send(login);
-
-    // .error(error => {
-    //   res.status(500).send(error);
-    // });
+  res.sendStatus(200);
 });
 
 app.post('/login', (req, res) => {
   var attempted = req.body.password;
-  // check if user exists
-
-  // if so use the Users.compare method
-  // else redirect user to sign up page
+  var username = req.body.username;
+  return models.Users.get({username})
+    .then((user) => {
+      if (user) {
+        if (models.Users.compare(attempted, user.password, user.salt)) {
+          res.redirect('/');
+        } else {
+          res.redirect('/login');
+        }
+      } else {
+        res.redirect('/login');
+      }
+    })
+    .catch((error) => {
+      console.log('this is the error message for login', error);
+    });
 });
 
 
