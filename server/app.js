@@ -3,6 +3,7 @@ const path = require('path');
 const utils = require('./lib/hashUtils');
 const partials = require('express-partials');
 const Auth = require('./middleware/auth');
+const cookieParser = require('./middleware/cookieParser.js');
 const models = require('./models');
 
 const app = express();
@@ -78,6 +79,7 @@ app.post('/links',
 /************************************************************/
 app.get('/signup', (req, res) => {
   res.render('signup');
+  res.cookieParser();
   res.sendStatus(200);
 });
 
@@ -104,6 +106,7 @@ app.post('/signup', (req, res) => {
 
 app.get('/login', (req, res, next) => {
   res.render('login');
+  res.cookieParser();
   res.sendStatus(200);
 });
 

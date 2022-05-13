@@ -170,7 +170,7 @@ describe('', function() {
         });
       });
     });
-
+    // should it redirect to login?
     it('redirects to signup if the user already exists', function(done) {
       var options = {
         'method': 'POST',
@@ -456,6 +456,7 @@ describe('', function() {
               createSession(requestWithCookies, secondResponse, function() {
                 var session = requestWithCookies.session;
                 expect(session).to.be.an('object');
+                console.log('expected username', session.user, username);
                 expect(session.user.username).to.eq(username);
                 expect(session.userId).to.eq(userId);
                 done();
