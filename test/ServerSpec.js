@@ -456,10 +456,8 @@ describe('', function() {
               createSession(requestWithCookies, secondResponse, function() {
                 var session = requestWithCookies.session;
                 expect(session).to.be.an('object');
-                console.log('object pass');
-                //console.log('username', session.user.username);
+                // console.log('object pass', session, typeof session.user.username);
                 expect(session.user.username).to.eq(username);
-                console.log('username pass');
                 expect(session.userId).to.eq(userId);
                 done();
               });
@@ -513,7 +511,7 @@ describe('', function() {
         if (err) { return done(err); }
         var queryString = 'SELECT * FROM sessions';
         db.query(queryString, function(error, sessions) {
-          if (error) { return done(error); }
+          if (error) { console.log('test error'); return done(error); }
           expect(sessions.length).to.equal(1);
           expect(sessions[0].userId).to.be.null;
           done();
