@@ -3,7 +3,7 @@ const Promise = require('bluebird');
 
 module.exports.createSession = (req, res, next) => {
   var obj = {};
-  var session = {};
+  // var session = {};
 
   if (Object.keys(req.cookies).length === 0) {
     models.Sessions.create()
@@ -18,27 +18,34 @@ module.exports.createSession = (req, res, next) => {
   } else if (req.cookies) {
     req.session = {hash: req.cookies.shortlyid};
 
+    var result;
+    var resultId;
+
     models.Sessions.get({hash: req.session.hash})
       .then((data) => {
-        //console.log('data', data, data.user.username);
+        console.log('then response', data);
+        console.log('req session log', data.userId, data.user, data.user.username);
+        req.session.user = {};
+        var user = {username: data.user.username};
+
+
+
+        if (data.userId) {
+          req.session.user.username = user;
+        } else {
+          req.session.user = { 'username': null };
+        }
+
         req.session = { userId: data.userId };
-        req.session['user'] = {'username': data.user.username};
+
         console.log('req.session.user.username data', req.session, req.session.user.username);
+        next();
       })
-      .catch(console.log('error'));
-
-
-
-    // no user id
-
-    // check if userId exists
-
-    // query sessions table using hash, get userID
-    // join
-    // query user table with userID to get username
-    // set req.session.userId
-    // set req.session.user.username
+      .catch((error) => {
+        console.log('catch error', error);
+      });
     next();
+    //console.log('outside promise', req.session.user.username);
   }
 };
 
