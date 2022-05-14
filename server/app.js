@@ -92,6 +92,13 @@ app.get('/login',
     res.render('login');
   });
 
+app.get('/signup',
+  (req, res) => {
+    res.render('signup');
+  });
+
+
+
 app.post('/signup', (req, res) => {
   var username = req.body.username;
   models.Users.get({ username })
@@ -132,6 +139,14 @@ app.post('/login', (req, res) => {
       } else {
         res.redirect('/login');
       }
+    });
+});
+
+app.get('/logout', (req, res) => {
+  models.Sessions.delete({ hash: req.session.hash})
+    .then((data) => {
+      res.cookie('shortlyid', 0);
+      res.redirect('/');
     });
 });
 
