@@ -97,8 +97,6 @@ app.get('/signup',
     res.render('signup');
   });
 
-
-
 app.post('/signup', (req, res) => {
   var username = req.body.username;
   models.Users.get({ username })

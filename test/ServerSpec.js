@@ -1,8 +1,8 @@
 var expect = require('chai').expect;
+var assert = require('chai').assert;
 var mysql = require('mysql2');
 var request = require('request');
 var httpMocks = require('node-mocks-http');
-
 var app = require('../server/app.js');
 var schema = require('../server/db/config.js');
 var port = 3000;
@@ -57,10 +57,9 @@ describe('', function() {
         server = app.listen(port, done);
       });
     });
-    //console.log('servers', server);
 
     afterEach(function() { server.close(); });
-  }, this.timeout(3000));
+  });
 
   describe('Database Schema:', function() {
     it('contains a users table', function(done) {
@@ -148,6 +147,23 @@ describe('', function() {
       });
     });
 
+    it('server sends status of 302 after signup', function(done) {
+      var options = {
+        'method': 'POST',
+        'uri': 'http://127.0.0.1:4568/signup',
+        'json': {
+          'username': 'Samantha',
+          'password': 'Samantha'
+        }
+      };
+      request(options, function(error, res, body) {
+        if (error) { return done(error); }
+        expect(res.statusCode).to.equal(302);
+        done();
+      });
+
+    });
+
     it('does not store the user\'s original text password', function(done) {
       var options = {
         'method': 'POST',
@@ -170,7 +186,7 @@ describe('', function() {
         });
       });
     });
-    // should it redirect to login?
+
     it('redirects to signup if the user already exists', function(done) {
       var options = {
         'method': 'POST',
@@ -276,6 +292,7 @@ describe('', function() {
         done();
       });
     });
+
   });
 
   describe('Sessions Schema:', function() {
@@ -456,7 +473,6 @@ describe('', function() {
               createSession(requestWithCookies, secondResponse, function() {
                 var session = requestWithCookies.session;
                 expect(session).to.be.an('object');
-                // console.log('object pass', session, typeof session.user.username);
                 expect(session.user.username).to.eq(username);
                 expect(session.userId).to.eq(userId);
                 done();
@@ -511,7 +527,7 @@ describe('', function() {
         if (err) { return done(err); }
         var queryString = 'SELECT * FROM sessions';
         db.query(queryString, function(error, sessions) {
-          if (error) { console.log('test error'); return done(error); }
+          if (error) { return done(error); }
           expect(sessions.length).to.equal(1);
           expect(sessions[0].userId).to.be.null;
           done();
@@ -597,6 +613,23 @@ describe('', function() {
         done();
       });
     });
+
+    it('Redirects to login page after user logs out', function(done) {
+      request('http://127.0.0.1:4568/logout', function(error, res, body) {
+        if (error) { return done(error); }
+        expect(res.req.path).to.equal('/login');
+        done();
+      });
+    });
+
+    it('Redirects to login page when loading page that doesnt exist', function(done) {
+      request('http://127.0.0.1:4568/invalidpage', function(error, res, body) {
+        if (error) { return done(error); }
+        expect(res.req.path).to.equal('/login');
+        done();
+      });
+    });
+
   });
 
   describe('Link creation:', function() {
